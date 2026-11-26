@@ -20,7 +20,7 @@ fi
 echo "==> Installing AngelOS 11 latest Plasma 6, Wine Staging, and VirtualBox Guest stack..."
 pacman -Syu --noconfirm --needed \
     base-devel git curl wget btrfs-progs snapper grub-btrfs \
-    networkmanager sddm xorg-xwayland qt6-wayland plasma-desktop plasma-workspace kwin \
+    networkmanager sddm xorg-xwayland qt6-wayland qt6-5compat plasma-desktop plasma-workspace plasma5support kwin \
     kscreen kglobalacceld powerdevil bluedevil plasma-nm plasma-pa \
     plasma-systemmonitor pipewire pipewire-pulse wireplumber \
     breeze breeze-gtk kvantum xdg-desktop-portal-kde \
@@ -36,9 +36,12 @@ cp -a "${REPO_ROOT}/desktop" /opt/angelos/
 cp -a "${REPO_ROOT}/compat" /opt/angelos/
 cp -a "${REPO_ROOT}/scripts" /opt/angelos/
 
+install -Dm755 "${REPO_ROOT}/desktop/scripts/apply-win11-layout.sh" /usr/local/libexec/angelos-apply-layout
 install -Dm755 "${REPO_ROOT}/compat/wine/angelos-wine-runner" /usr/local/bin/angelos-wine-runner
 install -Dm644 "${REPO_ROOT}/compat/wine/angelos-exe.desktop" /usr/share/applications/angelos-exe.desktop
 install -Dm644 "${REPO_ROOT}/compat/wine/angelos-msi.desktop" /usr/share/applications/angelos-msi.desktop
+mkdir -p /usr/share/plasma/plasmoids
+cp -a "${REPO_ROOT}/desktop/plasmoids/org.angelos.widgets" /usr/share/plasma/plasmoids/
 update-desktop-database /usr/share/applications || true
 
 echo "==> Enabling core services (NetworkManager, SDDM, VirtualBox Guest Additions)..."

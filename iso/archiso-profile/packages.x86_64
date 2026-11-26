@@ -26,9 +26,11 @@ grub-btrfs
 # Latest KDE Plasma 6 + Wayland Desktop Core
 xorg-xwayland
 qt6-wayland
+qt6-5compat
 sddm
 plasma-desktop
 plasma-workspace
+plasma5support
 kwin
 kscreen
 kglobalacceld
@@ -37,6 +39,9 @@ bluedevil
 plasma-nm
 plasma-pa
 plasma-systemmonitor
+plasma-activities
+plasma-activities-stats
+libksysguard
 pipewire
 pipewire-pulse
 wireplumber

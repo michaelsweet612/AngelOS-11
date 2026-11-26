@@ -14,6 +14,10 @@ if id -u angel >/dev/null 2>&1; then
         cp -an /opt/angelos/desktop/skel/. /home/angel/ || true
     fi
 
+    if [[ -f /home/angel/.config/angelos-layout-done ]]; then
+        rm -f /home/angel/.config/autostart/angelos-win11-layout.desktop || true
+    fi
+
     mkdir -p /home/angel/.config/autostart
     if [[ -f /opt/angelos/desktop/oobe/angelos-firstboot.desktop && ! -f /home/angel/.config/angelos-oobe-done ]]; then
         cp -f /opt/angelos/desktop/oobe/angelos-firstboot.desktop /home/angel/.config/autostart/

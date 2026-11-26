@@ -1,0 +1,21 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "michaelsweet612@users.noreply.github.com",
+                "Name": "AngelOS 11"
+            }
+        ],
+        "Category": "Utilities",
+        "Description": "Windows 11-style left taskbar Widgets button and quick board for AngelOS 11",
+        "EnabledByDefault": true,
+        "Icon": "weather-few-clouds",
+        "Id": "org.angelos.widgets",
+        "License": "GPL-3.0-or-later",
+        "Name": "AngelOS Widgets",
+        "Version": "0.1.0",
+        "Website": "https://github.com/michaelsweet612/AngelOS-11"
+    },
+    "KPackageStructure": "Plasma/Applet",
+    "X-Plasma-API-Minimum-Version": "6.0"
+}

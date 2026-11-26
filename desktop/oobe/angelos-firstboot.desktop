@@ -5,5 +5,6 @@ Comment=Choose Light or Dark Mode for AngelOS 11
 Exec=python3 /opt/angelos/desktop/oobe/angelos-firstboot.py
 Icon=/opt/angelos/desktop/assets/angelos-start-icon.svg
 Terminal=false
+NoDisplay=true
 X-KDE-autostart-phase=2
 OnlyShowIn=KDE;

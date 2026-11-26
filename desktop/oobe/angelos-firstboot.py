@@ -20,7 +20,7 @@ from PyQt6.QtWidgets import (
 )
 
 ASSETS_DIR = Path("/opt/angelos/desktop/assets")
-LAYOUT_SCRIPT = Path("/opt/angelos/desktop/skel/apply-win11-layout.sh")
+LAYOUT_SCRIPT = Path("/usr/local/libexec/angelos-apply-layout")
 
 
 class ThemeCard(QPushButton):

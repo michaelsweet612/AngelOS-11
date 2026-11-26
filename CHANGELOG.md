@@ -3,10 +3,13 @@
 All notable changes to **AngelOS 11** are documented in this file using [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
+
+## [0.1.0] - 2026-11-26
 ### Added
-- Completed `archiso` live profile (`angelos-11` hostname/os-release, passwordless live user `angel`, SDDM Wayland autologin, `NetworkManager` & `vboxservice` auto-enabled, staged from upstream `releng` with AngelOS 11 boot branding).
-- Added initial Windows 11 Plasma 6 desktop layer: original AngelOS 11 start icon & Light/Dark Bloom SVG wallpapers, `AngelOS11Dark`/`AngelOS11Light` color schemes, `apply-win11-layout.sh` (48px docked centered taskbar, `IAX` titlebars, KWin blur, Dolphin layout, Windows 11 shortcuts), and PyQt6 First-Boot OOBE Light/Dark mode picker.
-- Added `angelos-wine-runner` + `.exe`/`.msi` desktop handlers (`compat/wine/`) for seamless Wine Staging launches with desktop notifications.
+- Added left-side Windows 11-style `org.angelos.widgets` Plasma 6 QML plasmoid (quick glance, app launcher tiles, and Light/Dark Mode switcher).
+- Integrated `KDE-Windows-Modern` Plasma 6 C++/QML shell components (`startmenu`, `search` pill, `taskview`, `icontasks`, Win11 `systemtray` + Quick Settings flyout, 2-line `digitalclock` + Notification Bell, `showdesktop` 6px sliver, Kvantum Mica, Aurorae, icons, and Alt+Tab switcher).
+- Added Microsoft Edge (`microsoft-edge-stable-bin` via AUR with `chromium` fallback) and `ttf-selawik` font builds to `build-iso.sh`, pinning Edge to the centered taskbar.
+- Moved layout initializer to `/usr/local/libexec/angelos-apply-layout` with `NoDisplay=true` and immediate autostart cleanup so it stays hidden from user folders and app menus.
 
 ## [0.0.1] - 2026-11-26
 ### Added
