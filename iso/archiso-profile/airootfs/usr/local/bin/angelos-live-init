@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Ensure the live user home, passwordless login, and AngelOS desktop defaults exist.
+if id -u angel >/dev/null 2>&1; then
+    passwd -d angel >/dev/null 2>&1 || true
+
+    if [[ ! -d /home/angel ]]; then
+        mkdir -p /home/angel
+        cp -a /etc/skel/. /home/angel/ || true
+    fi
+
+    if [[ -d /opt/angelos/desktop/skel ]]; then
+        cp -an /opt/angelos/desktop/skel/. /home/angel/ || true
+    fi
+
+    mkdir -p /home/angel/.config/autostart
+    if [[ -f /opt/angelos/desktop/oobe/angelos-firstboot.desktop && ! -f /home/angel/.config/angelos-oobe-done ]]; then
+        cp -f /opt/angelos/desktop/oobe/angelos-firstboot.desktop /home/angel/.config/autostart/
+    fi
+
+    chown -R angel:angel /home/angel
+fi

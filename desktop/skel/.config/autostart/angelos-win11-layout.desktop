@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Apply AngelOS 11 Desktop Layout
+Exec=bash /opt/angelos/desktop/skel/apply-win11-layout.sh dark
+Terminal=false
+X-KDE-autostart-phase=2
+OnlyShowIn=KDE;

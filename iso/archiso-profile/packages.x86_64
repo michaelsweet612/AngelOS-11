@@ -1,5 +1,5 @@
-# AngelOS 11 Baseline Package List (v0.0.1)
-# Kernel & Firmware
+# AngelOS 11 Package List (Latest Arch + Latest KDE Plasma 6)
+# Kernel, Boot & Firmware
 base
 linux
 linux-headers
@@ -7,8 +7,11 @@ linux-firmware
 mkinitcpio-archiso
 syslinux
 edk2-shell
+grub
+efibootmgr
+os-prober
 
-# Networking & Core Utilities
+# Networking, Filesystems & System Restore
 networkmanager
 openssh
 sudo
@@ -18,11 +21,9 @@ wget
 bash-completion
 btrfs-progs
 snapper
-grub
-efibootmgr
-os-prober
+grub-btrfs
 
-# KDE Plasma 6 + Wayland Desktop Core
+# Latest KDE Plasma 6 + Wayland Desktop Core
 xorg-xwayland
 sddm
 plasma-desktop
@@ -40,6 +41,12 @@ breeze-gtk
 kvantum
 xdg-desktop-portal-kde
 xdg-user-dirs
+libnotify
+python-pyqt6
+
+# Fonts
+noto-fonts
+ttf-inter
 
 # Default Core Applications (Win11 Equivalents)
 dolphin
@@ -52,6 +59,16 @@ kcalc
 konsole
 discover
 flatpak
+
+# Windows App Compatibility (Wine Staging + 32-bit multilib libs)
+wine-staging
+winetricks
+wine-mono
+wine-gecko
+lib32-mesa
+lib32-vulkan-icd-loader
+lib32-pipewire
+lib32-gnutls
 
 # VirtualBox Guest Support (Live ISO + VM Testing)
 virtualbox-guest-utils

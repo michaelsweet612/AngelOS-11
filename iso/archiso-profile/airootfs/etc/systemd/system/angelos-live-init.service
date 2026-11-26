@@ -1,0 +1,12 @@
+[Unit]
+Description=Initialize AngelOS 11 Live User Environment
+After=systemd-sysusers.service
+Before=display-manager.service sddm.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/angelos-live-init
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

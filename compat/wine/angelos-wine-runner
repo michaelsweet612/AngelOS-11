@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# AngelOS 11 seamless Windows .exe / .msi runner using Wine Staging.
+# Shows a Fluent notification toast, initializes a tuned 64-bit prefix if needed,
+# launches the Windows executable/installer, and syncs Wine Start Menu shortcuts.
+
+if [[ $# -lt 1 ]]; then
+    echo "Usage: angelos-wine-runner <path-to-exe-or-msi> [args...]" >&2
+    exit 1
+fi
+
+TARGET="$1"
+shift
+
+if [[ ! -f "${TARGET}" ]]; then
+    echo "Error: File not found: ${TARGET}" >&2
+    exit 1
+fi
+
+export WINEPREFIX="${WINEPREFIX:-${HOME}/.angelos-wine}"
+export WINEARCH="${WINEARCH:-win64}"
+
+APP_NAME="$(basename "${TARGET}")"
+EXT="${APP_NAME##*.}"
+EXT_LOWER="$(printf '%s' "${EXT}" | tr '[:upper:]' '[:lower:]')"
+
+if command -v notify-send >/dev/null 2>&1; then
+    notify-send \
+        -a "AngelOS Windows Compatibility" \
+        -i application-x-ms-dos-executable \
+        "Launching ${APP_NAME}" \
+        "Running via AngelOS Wine Staging..." || true
+fi
+
+if [[ ! -d "${WINEPREFIX}" ]]; then
+    wineboot --init >/dev/null 2>&1 || true
+    if command -v winetricks >/dev/null 2>&1; then
+        winetricks -q win11 >/dev/null 2>&1 || true
+    fi
+fi
+
+if [[ "${EXT_LOWER}" == "msi" ]]; then
+    wine msiexec /i "${TARGET}" "$@"
+else
+    wine "${TARGET}" "$@"
+fi
+
+# Refresh Start Menu entries for newly installed Windows programs
+if command -v update-desktop-database >/dev/null 2>&1 && [[ -d "${HOME}/.local/share/applications" ]]; then
+    update-desktop-database "${HOME}/.local/share/applications" >/dev/null 2>&1 || true
+fi
+if command -v kbuildsycoca6 >/dev/null 2>&1; then
+    kbuildsycoca6 >/dev/null 2>&1 || true
+fi

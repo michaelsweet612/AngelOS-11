@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=AngelOS Windows Installer Runner
+Comment=Install Windows .msi packages via Wine Staging
+Exec=/usr/local/bin/angelos-wine-runner %f
+Icon=application-x-msi
+Terminal=false
+NoDisplay=true
+MimeType=application/x-msi;

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=AngelOS Windows App Runner
+Comment=Run Windows .exe programs via Wine Staging
+Exec=/usr/local/bin/angelos-wine-runner %f
+Icon=application-x-ms-dos-executable
+Terminal=false
+NoDisplay=true
+MimeType=application/x-ms-dos-executable;application/vnd.microsoft.portable-executable;

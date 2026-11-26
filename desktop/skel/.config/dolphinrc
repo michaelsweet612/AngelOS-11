@@ -1,0 +1,11 @@
+[General]
+EditableUrl=false
+ShowFullPath=false
+ShowToolTips=true
+
+[MainWindow]
+MenuBar=Disabled
+ToolBarsMovable=Disabled
+
+[PlacesPanel]
+IconSize=22

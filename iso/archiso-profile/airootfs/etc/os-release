@@ -1,0 +1,10 @@
+NAME="AngelOS 11"
+PRETTY_NAME="AngelOS 11 (Arch Linux)"
+ID=angelos
+ID_LIKE=arch
+BUILD_ID=rolling
+ANSI_COLOR="38;2;0;120;212"
+HOME_URL="https://github.com/michaelsweet612/AngelOS-11"
+SUPPORT_URL="https://github.com/michaelsweet612/AngelOS-11/issues"
+BUG_REPORT_URL="https://github.com/michaelsweet612/AngelOS-11/issues"
+LOGO=angelos

@@ -45,6 +45,7 @@ jobs:
             archlinux:latest \
             bash -c '
               pacman-key --init
+              pacman-key --populate archlinux
               pacman -Syu --noconfirm archiso
               ./scripts/build-iso.sh
             '

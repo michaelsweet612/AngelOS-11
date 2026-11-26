@@ -1,0 +1,11 @@
+[Effect-blur]
+BlurStrength=14
+NoiseStrength=5
+
+[Plugins]
+blurEnabled=true
+contrastEnabled=true
+
+[org.kde.kdecoration2]
+ButtonsOnLeft=
+ButtonsOnRight=IAX
