@@ -1,0 +1,21 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "michaelsweet612@users.noreply.github.com",
+                "Name": "AngelOS 11"
+            }
+        ],
+        "Category": "Windows and Tasks",
+        "Description": "Windows 11 thin far-right Show Desktop sliver for KDE Plasma 6",
+        "EnabledByDefault": true,
+        "Icon": "user-desktop",
+        "Id": "org.angelos.showdesktop",
+        "License": "GPL-3.0-or-later",
+        "Name": "AngelOS Show Desktop Sliver",
+        "Version": "0.1.0",
+        "Website": "https://github.com/michaelsweet612/AngelOS-11"
+    },
+    "KPackageStructure": "Plasma/Applet",
+    "X-Plasma-API-Minimum-Version": "6.0"
+}

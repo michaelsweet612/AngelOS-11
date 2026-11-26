@@ -1,20 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Apply AngelOS 11 Windows 11 layout, themes, shortcuts, KWin blur, and exact Win11 taskbar
-# on the latest KDE Plasma 6 (Wayland). Usage: angelos-apply-layout [dark|light]
+# Apply AngelOS 11 layout using yeyushengfan258/Win11OS-kde (updated for latest Plasma 6)
+# and exact Windows 11 taskbar layout. Usage: angelos-apply-layout [dark|light]
 
 # Immediately delete one-shot autostart trigger so it never lingers or appears again.
 rm -f "${HOME}/.config/autostart/angelos-win11-layout.desktop" || true
 
 MODE="${1:-dark}"
 ASSETS_DIR="/opt/angelos/desktop/assets"
-COLOR_SRC_DIR="/opt/angelos/desktop/plasma-look-and-feel"
-COLOR_DST_DIR="${HOME}/.local/share/color-schemes"
-
-mkdir -p "${COLOR_DST_DIR}"
-cp -f "${COLOR_SRC_DIR}/AngelOS11Dark.colors" "${COLOR_DST_DIR}/"
-cp -f "${COLOR_SRC_DIR}/AngelOS11Light.colors" "${COLOR_DST_DIR}/"
 
 # Detect default browser desktop ID (prefer Microsoft Edge, fallback to Chromium)
 BROWSER_DESKTOP="preferred://browser"
@@ -29,20 +23,23 @@ elif [[ -f /usr/share/applications/chromium.desktop ]]; then
 fi
 
 if [[ "${MODE}" == "light" ]]; then
-    LOOKFEEL_ID="org.kde.windowsmodern.light"
-    PLASMA_THEME="Windows-modern-light"
-    COLOR_SCHEME="AngelOS11Light"
-    KVANTUM_STYLE="kvantum"
+    LOOKFEEL_ID="com.github.yeyushengfan258.Win11OS-light"
+    PLASMA_THEME="Win11OS-light"
+    COLOR_SCHEME="Win11OSLight"
+    KVANTUM_THEME="Win11OS-light"
+    AURORAE_THEME="__aurorae__svg__Win11OS-light"
+    ICON_THEME="Win11"
     WALLPAPER="${ASSETS_DIR}/angelos-bloom-light.svg"
 else
-    LOOKFEEL_ID="org.kde.windowsmodern.dark"
-    PLASMA_THEME="Windows-modern-dark"
-    COLOR_SCHEME="AngelOS11Dark"
-    KVANTUM_STYLE="kvantum-dark"
+    LOOKFEEL_ID="com.github.yeyushengfan258.Win11OS-dark"
+    PLASMA_THEME="Win11OS-dark"
+    COLOR_SCHEME="Win11OSDark"
+    KVANTUM_THEME="Win11OS-dark"
+    AURORAE_THEME="__aurorae__svg__Win11OS-dark"
+    ICON_THEME="Win11-dark"
     WALLPAPER="${ASSETS_DIR}/angelos-bloom-dark.svg"
 fi
 
-# Apply Windows Modern Global Theme if installed, then layer AngelOS branding & custom taskbar
 if command -v kpackagetool6 >/dev/null 2>&1 && kpackagetool6 -t Plasma/LookAndFeel -l 2>/dev/null | grep -q "${LOOKFEEL_ID}"; then
     plasma-apply-lookandfeel -a "${LOOKFEEL_ID}" --resetLayout || true
     sleep 1
@@ -61,39 +58,40 @@ if command -v plasma-apply-wallpaperimage >/dev/null 2>&1 && [[ -f "${WALLPAPER}
 fi
 
 if command -v kwriteconfig6 >/dev/null 2>&1; then
-    # Kvantum Mica widget style & Windows Modern icons
-    kwriteconfig6 --file kdeglobals --group KDE --key widgetStyle "${KVANTUM_STYLE}"
-    kwriteconfig6 --file Kvantum/kvantum.kvconfig --group General --key theme "Windows-modern"
-    if [[ -d /usr/share/icons/windows-modern ]]; then
-        kwriteconfig6 --file kdeglobals --group Icons --key Theme "windows-modern"
-        kwriteconfig6 --file kcmicons --group Icons --key Theme "windows-modern"
+    # Win11OS-kde Kvantum widget style, icons & cursors
+    kwriteconfig6 --file kdeglobals --group KDE --key widgetStyle "kvantum"
+    kwriteconfig6 --file Kvantum/kvantum.kvconfig --group General --key theme "${KVANTUM_THEME}"
+    if [[ -d "/usr/share/icons/${ICON_THEME}" ]]; then
+        kwriteconfig6 --file kdeglobals --group Icons --key Theme "${ICON_THEME}"
+        kwriteconfig6 --file kcmicons --group Icons --key Theme "${ICON_THEME}"
+    elif [[ -d /usr/share/icons/Win11 ]]; then
+        kwriteconfig6 --file kdeglobals --group Icons --key Theme "Win11"
+        kwriteconfig6 --file kcmicons --group Icons --key Theme "Win11"
     fi
     if [[ -d /usr/share/icons/Win10OS-cursors ]]; then
         kwriteconfig6 --file kcminputrc --group Mouse --key cursorTheme "Win10OS-cursors"
     fi
 
-    # Disable splash screen override from lookandfeel
+    # Keep splash clean (avoid Plasma 5 splash artifacts)
     kwriteconfig6 --file ksplashrc --group KSplash --key Engine none
     kwriteconfig6 --file ksplashrc --group KSplash --key Theme None
 
-    # Windows 11 titlebar buttons (Right: Minimize, Maximize, Close) & Tiny borders
+    # Win11OS Aurorae decoration with Windows 11 right-side buttons (Minimize, Maximize, Close)
+    kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key library "org.kde.kwin.aurorae"
+    kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key theme "${AURORAE_THEME}"
     kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key ButtonsOnLeft ""
     kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key ButtonsOnRight "IAX"
     kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key BorderSize "Tiny"
     kwriteconfig6 --file kwinrc --group org.kde.kdecoration2 --key BorderSizeAuto false
 
-    # KWin Mica/Acrylic blur, contrast, Alt+Tab switcher & clean Show Desktop
+    # KWin Mica/Acrylic blur & contrast
     kwriteconfig6 --file kwinrc --group Plugins --key blurEnabled true
     kwriteconfig6 --file kwinrc --group Plugins --key contrastEnabled true
     kwriteconfig6 --file kwinrc --group Plugins --key windowapertureEnabled false
     kwriteconfig6 --file kwinrc --group Effect-blur --key BlurStrength 14
     kwriteconfig6 --file kwinrc --group Effect-blur --key NoiseStrength 5
-    kwriteconfig6 --file kwinrc --group TabBox --key MultiScreenMode 1
-    if [[ -d /usr/share/kwin/tabbox/org.kde.windowsmodern.alttab ]]; then
-        kwriteconfig6 --file kwinrc --group TabBox --key LayoutName "org.kde.windowsmodern.alttab"
-    fi
 
-    # Short keyboard layout labels (ENG US)
+    # Short keyboard layout labels (ENG)
     kwriteconfig6 --file kxkbrc --group Layout --key DisplayNames "en:ENG"
 
     # Exact Windows 11 keyboard shortcuts
@@ -109,7 +107,7 @@ if command -v kwriteconfig6 >/dev/null 2>&1; then
 fi
 
 # Configure exact Windows 11 taskbar:
-# [Widgets (left)] [spacer] [Start] [Search] [Task View] [Pinned Apps] [spacer] [Win11 Tray] [Win11 Clock+Bell] [Show Desktop Sliver]
+# [Widgets (left)] [spacer] [Start] [Search pill] [Pinned Apps] [spacer] [ENG] [Tray ^ + Net/Vol/Bat] [2-line Clock] [Bell] [Show Desktop sliver]
 if command -v gdbus >/dev/null 2>&1; then
     PLASMA_JS=$(cat <<EOF
 function pick(custom, stock) {
@@ -137,21 +135,25 @@ if (knownWidgetTypes.indexOf("org.angelos.widgets") >= 0) {
 // Left expanding spacer
 panel.addWidget("org.kde.plasma.panelspacer");
 
-// Center: Start + Search pill + Task View + Icon Tasks
-var startId = pick("org.kde.windowsmodern.startmenu", "org.kde.plasma.kickoff");
-var start = panel.addWidget(startId);
+// Center: Menu 11 Next Start Menu + Search pill + Pinned/Running Apps
+var start = panel.addWidget(pick("menu.11.next", "org.kde.plasma.kickoff"));
 start.currentConfigGroup = ["General"];
 start.writeConfig("icon", "/opt/angelos/desktop/assets/angelos-start-icon.svg");
 start.writeConfig("useCustomButtonImage", true);
 start.writeConfig("customButtonImage", "/opt/angelos/desktop/assets/angelos-start-icon.svg");
 start.writeConfig("showActionButtonCaptions", false);
+start.writeConfig("favoriteApps", [
+    "${BROWSER_DESKTOP}",
+    "applications:org.kde.dolphin.desktop",
+    "applications:org.kde.discover.desktop",
+    "applications:org.kde.konsole.desktop",
+    "applications:systemsettings.desktop",
+    "applications:org.kde.kate.desktop",
+    "applications:org.kde.spectacle.desktop"
+].join(","));
 
-if (knownWidgetTypes.indexOf("org.kde.windowsmodern.search") >= 0) {
-    panel.addWidget("org.kde.windowsmodern.search");
-}
-
-if (knownWidgetTypes.indexOf("org.kde.windowsmodern.taskview") >= 0) {
-    panel.addWidget("org.kde.windowsmodern.taskview");
+if (knownWidgetTypes.indexOf("org.angelos.search") >= 0) {
+    panel.addWidget("org.angelos.search");
 }
 
 var tasks = panel.addWidget("org.kde.plasma.icontasks");
@@ -171,8 +173,12 @@ tasks.writeConfig("groupingStrategy", 1);
 // Right expanding spacer
 panel.addWidget("org.kde.plasma.panelspacer");
 
-// Far right: Win11 System Tray + Win11 2-line Clock/Bell + Thin Show Desktop sliver
-var tray = panel.addWidget(pick("org.kde.windowsmodern.systemtray", "org.kde.plasma.systemtray"));
+// Far right (Windows 11 order): Language -> System Tray (^ + Net/Vol/Bat) -> 2-line Clock -> Notification Bell -> Show Desktop sliver
+if (knownWidgetTypes.indexOf("org.kde.plasma.keyboardlayout") >= 0) {
+    panel.addWidget("org.kde.plasma.keyboardlayout");
+}
+
+var tray = panel.addWidget("org.kde.plasma.systemtray");
 tray.currentConfigGroup = ["General"];
 tray.writeConfig("showAllItems", false);
 tray.writeConfig("scaleIconsToFit", false);
@@ -180,23 +186,33 @@ tray.writeConfig("hiddenItems", [
     "org.kde.plasma.clipboard",
     "org.kde.plasma.brightness",
     "org.kde.plasma.nightcolor",
+    "org.kde.plasma.notifications",
     "org.kde.discovernotifier",
     "org.kde.plasma.devicenotifier",
-    "org.kde.plasma.mediacontroller"
+    "org.kde.plasma.mediacontroller",
+    "org.kde.kscreen",
+    "org.kde.plasma.keyboardlayout"
+].join(","));
+tray.writeConfig("shownItems", [
+    "org.kde.plasma.networkmanagement",
+    "org.kde.plasma.volume",
+    "org.kde.plasma.battery"
 ].join(","));
 
-var clock = panel.addWidget(pick("org.kde.windowsmodern.digitalclock", "org.kde.plasma.digitalclock"));
+var clock = panel.addWidget("org.kde.plasma.digitalclock");
 clock.currentConfigGroup = ["Appearance"];
-clock.writeConfig("autoFontAndSize", true);
+clock.writeConfig("autoFontAndSize", false);
+clock.writeConfig("fontSize", 9);
 clock.writeConfig("showDate", true);
 clock.writeConfig("dateDisplayFormat", 2);
 clock.writeConfig("showSeconds", 0);
 clock.writeConfig("use24hFormat", 1);
-clock.writeConfig("expandedWidth", 320);
 
-var peek = panel.addWidget(pick("org.kde.windowsmodern.showdesktop", "org.kde.plasma.showdesktop"));
-peek.currentConfigGroup = ["General"];
-peek.writeConfig("size", 6);
+if (knownWidgetTypes.indexOf("org.kde.plasma.notifications") >= 0) {
+    panel.addWidget("org.kde.plasma.notifications");
+}
+
+var peek = panel.addWidget(pick("org.angelos.showdesktop", "org.kde.plasma.showdesktop"));
 EOF
 )
     gdbus call --session \

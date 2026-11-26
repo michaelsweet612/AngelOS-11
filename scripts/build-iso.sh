@@ -3,7 +3,8 @@ set -euo pipefail
 
 # Build a versioned AngelOS 11 ISO using mkarchiso.
 # - Stages from /usr/share/archiso/configs/releng so bootmodes & hooks track latest archiso.
-# - Compiles Windows 11 C++/QML Plasma 6 components against the latest Arch Plasma 6 ABI.
+# - Installs and patches yeyushengfan258/Win11OS-kde (theme only) for latest KDE Plasma 6.
+# - Installs Win11-icon-theme, Win10OS-cursors, Eisteed/menu-11-next, and AngelOS plasmoids.
 # - Builds Microsoft Edge & Selawik font from AUR into a local pacman repo (with Chromium fallback).
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -39,19 +40,17 @@ export ANGELOS_VERSION="${VERSION_VAL}"
 STAGED_PROFILE="${WORK_DIR}/profile"
 ARCHISO_WORK="${WORK_DIR}/archiso"
 LOCAL_REPO="${WORK_DIR}/angelos-repo"
-WM_DIR="${WORK_DIR}/kde-windows-modern"
+WIN11OS_DIR="${WORK_DIR}/win11os-kde"
+ICONS_DIR="${WORK_DIR}/win11-icon-theme"
+CURSORS_DIR="${WORK_DIR}/win10os-cursors"
+MENU11_DIR="${WORK_DIR}/menu-11-next"
 AUR_WORK="${WORK_DIR}/aur"
 
 mkdir -p "${WORK_DIR}" "${OUT_DIR}" "${LOCAL_REPO}" "${AUR_WORK}"
-rm -rf "${STAGED_PROFILE}" "${ARCHISO_WORK}" "${WM_DIR}"
+rm -rf "${STAGED_PROFILE}" "${ARCHISO_WORK}" "${WIN11OS_DIR}" "${ICONS_DIR}" "${CURSORS_DIR}" "${MENU11_DIR}"
 
-echo "==> Installing Plasma 6 build dependencies & AUR tools in build environment..."
-pacman -Syu --noconfirm --needed \
-    base-devel git cmake extra-cmake-modules gcc \
-    qt6-base qt6-declarative kpackage kconfig ki18n kwindowsystem kio \
-    kiconthemes kitemmodels kservice kxmlgui kglobalaccel kjobwidgets kcmutils \
-    knotifications plasma-activities plasma-activities-stats libplasma \
-    plasma-workspace libksysguard
+echo "==> Installing base-devel, git & gtk-update-icon-cache tools in build environment..."
+pacman -Syu --noconfirm --needed base-devel git python
 
 echo "==> Staging archiso profile from ${RELENG_DIR}..."
 cp -a "${RELENG_DIR}" "${STAGED_PROFILE}"
@@ -105,74 +104,117 @@ Server = file://${LOCAL_REPO}
 EOF
 fi
 
-# Compile & install Windows Modern Plasma 6 components into airootfs
-echo "==> Fetching and building KDE-Windows-Modern Plasma 6 shell components..."
-git clone --depth=1 https://github.com/Jeysef/KDE-Windows-Modern.git "${WM_DIR}"
-
-QT_PLUGIN_REL="usr/lib/qt6/plugins"
-if command -v qtpaths6 >/dev/null 2>&1; then
-    QT_PLUGIN_RAW="$(qtpaths6 --query QT_INSTALL_PLUGINS)"
-    QT_PLUGIN_REL="${QT_PLUGIN_RAW#/}"
-fi
-
 AIROOTFS="${STAGED_PROFILE}/airootfs"
-PLUGIN_DST="${AIROOTFS}/${QT_PLUGIN_REL}/plasma/applets"
-mkdir -p "${PLUGIN_DST}" \
-    "${AIROOTFS}/usr/share/plasma/plasmoids" \
-    "${AIROOTFS}/usr/share/plasma/desktoptheme" \
-    "${AIROOTFS}/usr/share/plasma/look-and-feel" \
-    "${AIROOTFS}/usr/share/plasma/layout-templates" \
-    "${AIROOTFS}/usr/share/plasma/shells" \
+mkdir -p \
     "${AIROOTFS}/usr/share/aurorae/themes" \
     "${AIROOTFS}/usr/share/color-schemes" \
     "${AIROOTFS}/usr/share/Kvantum" \
+    "${AIROOTFS}/usr/share/plasma/desktoptheme" \
+    "${AIROOTFS}/usr/share/plasma/look-and-feel" \
+    "${AIROOTFS}/usr/share/plasma/plasmoids" \
+    "${AIROOTFS}/usr/share/wallpapers" \
     "${AIROOTFS}/usr/share/icons" \
-    "${AIROOTFS}/usr/share/kwin/tabbox"
+    "${AIROOTFS}/usr/share/sddm/themes"
 
-for cpp_applet in org.kde.windowsmodern.systemtray org.kde.windowsmodern.icontasks; do
-    APP_SRC="${WM_DIR}/plasma/applets/${cpp_applet}"
-    if [[ -d "${APP_SRC}" ]]; then
-        cmake -S "${APP_SRC}" -B "${APP_SRC}/build" -DCMAKE_BUILD_TYPE=Release
-        cmake --build "${APP_SRC}/build" --parallel "$(nproc)"
-        find "${APP_SRC}/build" -type f -name "*.so" -exec cp -f {} "${PLUGIN_DST}/" \;
+# Fetch & install ONLY yeyushengfan258/Win11OS-kde (updated for latest KDE Plasma 6)
+echo "==> Installing yeyushengfan258/Win11OS-kde and updating for latest Plasma 6..."
+git clone --depth=1 https://github.com/yeyushengfan258/Win11OS-kde.git "${WIN11OS_DIR}"
+
+cp -a "${WIN11OS_DIR}/aurorae/." "${AIROOTFS}/usr/share/aurorae/themes/"
+cp -a "${WIN11OS_DIR}/color-schemes/"*.colors "${AIROOTFS}/usr/share/color-schemes/"
+cp -a "${WIN11OS_DIR}/Kvantum/." "${AIROOTFS}/usr/share/Kvantum/"
+cp -a "${WIN11OS_DIR}/plasma/desktoptheme/." "${AIROOTFS}/usr/share/plasma/desktoptheme/"
+cp -a "${WIN11OS_DIR}/wallpaper/." "${AIROOTFS}/usr/share/wallpapers/"
+
+for lnf in com.github.yeyushengfan258.Win11OS-dark com.github.yeyushengfan258.Win11OS-light; do
+    if [[ -d "${WIN11OS_DIR}/plasma/look-and-feel/${lnf}" ]]; then
+        cp -a "${WIN11OS_DIR}/plasma/look-and-feel/${lnf}" "${AIROOTFS}/usr/share/plasma/look-and-feel/"
     fi
 done
 
-for qml_applet in \
-    org.kde.windowsmodern.startmenu \
-    org.kde.windowsmodern.search \
-    org.kde.windowsmodern.taskview \
-    org.kde.windowsmodern.digitalclock \
-    org.kde.windowsmodern.showdesktop; do
-    if [[ -d "${WM_DIR}/plasma/applets/${qml_applet}" ]]; then
-        cp -a "${WM_DIR}/plasma/applets/${qml_applet}" "${AIROOTFS}/usr/share/plasma/plasmoids/"
+# Install Plasma 6 SDDM themes from Win11OS-kde
+for sddm_variant in sddm-dark/6.0/Win11OS-dark sddm-light/6.0/Win11OS-light; do
+    if [[ -d "${WIN11OS_DIR}/${sddm_variant}" ]]; then
+        cp -a "${WIN11OS_DIR}/${sddm_variant}" "${AIROOTFS}/usr/share/sddm/themes/"
     fi
 done
 
-cp -a "${WM_DIR}/plasma/desktoptheme/." "${AIROOTFS}/usr/share/plasma/desktoptheme/"
-cp -a "${WM_DIR}/plasma/look-and-feel/." "${AIROOTFS}/usr/share/plasma/look-and-feel/"
-cp -a "${WM_DIR}/plasma/layout-templates/." "${AIROOTFS}/usr/share/plasma/layout-templates/"
-if [[ -d "${WM_DIR}/plasma/shells" ]]; then
-    cp -a "${WM_DIR}/plasma/shells/." "${AIROOTFS}/usr/share/plasma/shells/"
-fi
-cp -a "${WM_DIR}/aurorae/." "${AIROOTFS}/usr/share/aurorae/themes/"
-cp -a "${WM_DIR}/color-schemes/"*.colors "${AIROOTFS}/usr/share/color-schemes/"
-cp -a "${WM_DIR}/Kvantum/." "${AIROOTFS}/usr/share/Kvantum/"
-cp -a "${WM_DIR}/icons/." "${AIROOTFS}/usr/share/icons/"
-if [[ -d "${WM_DIR}/plasma/windowswitcher" ]]; then
-    cp -a "${WM_DIR}/plasma/windowswitcher/." "${AIROOTFS}/usr/share/kwin/tabbox/"
-fi
+# Update Win11OS-kde metadata & defaults for latest KDE Plasma 6 + Windows 11 accuracy
+python3 - "${AIROOTFS}" <<'PYEOF'
+import json
+import pathlib
+import sys
 
-# Bundle Win10OS-cursors (GPL-3.0) if reachable
-CURSOR_SRC="${WORK_DIR}/win10os-cursors"
-rm -rf "${CURSOR_SRC}"
-if git clone --depth=1 https://github.com/yeyushengfan258/Win10OS-cursors.git "${CURSOR_SRC}" && [[ -d "${CURSOR_SRC}/dist" ]]; then
+airootfs = pathlib.Path(sys.argv[1])
+
+# 1. Patch look-and-feel packages: Windows 11 right-side titlebar buttons (IAX),
+#    consistent Win10OS-cursors, and Plasma 6 QtQuick Splash.qml cleanup
+for variant in ("Win11OS-dark", "Win11OS-light"):
+    lnf_dir = airootfs / "usr/share/plasma/look-and-feel" / f"com.github.yeyushengfan258.{variant}"
+    if not lnf_dir.exists():
+        continue
+
+    # Drop legacy metadata.desktop when metadata.json exists so Plasma 6 uses JSON cleanly
+    legacy_desktop = lnf_dir / "metadata.desktop"
+    if (lnf_dir / "metadata.json").exists() and legacy_desktop.exists():
+        legacy_desktop.unlink()
+
+    defaults_file = lnf_dir / "contents/defaults"
+    if defaults_file.exists():
+        text = defaults_file.read_text(encoding="utf-8")
+        text = text.replace("ButtonsOnLeft=XAI", "ButtonsOnLeft=")
+        text = text.replace("ButtonsOnRight=", "ButtonsOnRight=IAX")
+        text = text.replace("cursorTheme=ArcDusk-cursors", "cursorTheme=Win10OS-cursors")
+        defaults_file.write_text(text, encoding="utf-8")
+
+    splash_file = lnf_dir / "contents/splash/Splash.qml"
+    if splash_file.exists():
+        splash_text = splash_file.read_text(encoding="utf-8")
+        splash_text = splash_text.replace("import QtQuick 2.1", "import QtQuick")
+        splash_text = splash_text.replace("target: bottomRect", "target: topRect")
+        splash_file.write_text(splash_text, encoding="utf-8")
+
+# 2. Ensure Win11OS-dark / Win11OS-light desktopthemes have Plasma 6 metadata.json
+for variant in ("Win11OS-dark", "Win11OS-light"):
+    dt_dir = airootfs / "usr/share/plasma/desktoptheme" / variant
+    meta_json = dt_dir / "metadata.json"
+    if dt_dir.exists() and not meta_json.exists():
+        payload = {
+            "KPlugin": {
+                "Authors": [{"Email": "yeyushengfan258@outlook.com", "Name": "yeyushengfan258"}],
+                "Category": "Plasma Theme",
+                "Description": f"{variant} theme updated for KDE Plasma 6",
+                "EnabledByDefault": True,
+                "Id": variant,
+                "License": "GPLv3",
+                "Name": variant,
+                "Version": "1.0",
+                "Website": "https://github.com/yeyushengfan258/Win11OS-kde",
+            }
+        }
+        meta_json.write_text(json.dumps(payload, indent=4) + "\n", encoding="utf-8")
+PYEOF
+
+# Install Win11-icon-theme & Win10OS-cursors (paired assets referenced by Win11OS-kde)
+echo "==> Installing Win11-icon-theme & Win10OS-cursors..."
+git clone --depth=1 https://github.com/yeyushengfan258/Win11-icon-theme.git "${ICONS_DIR}"
+bash "${ICONS_DIR}/install.sh" -d "${AIROOTFS}/usr/share/icons" -t default || true
+
+git clone --depth=1 https://github.com/yeyushengfan258/Win10OS-cursors.git "${CURSORS_DIR}"
+if [[ -d "${CURSORS_DIR}/dist" ]]; then
     mkdir -p "${AIROOTFS}/usr/share/icons/Win10OS-cursors"
-    cp -a "${CURSOR_SRC}/dist/." "${AIROOTFS}/usr/share/icons/Win10OS-cursors/"
+    cp -a "${CURSORS_DIR}/dist/." "${AIROOTFS}/usr/share/icons/Win10OS-cursors/"
 fi
 
-# Install AngelOS custom Widgets plasmoid
+# Install pure-QML Plasma 6 Start Menu (Eisteed/menu-11-next) & AngelOS taskbar plasmoids
+echo "==> Installing menu-11-next and AngelOS taskbar plasmoids..."
+git clone --depth=1 https://github.com/Eisteed/menu-11-next.git "${MENU11_DIR}"
+cp -a "${MENU11_DIR}" "${AIROOTFS}/usr/share/plasma/plasmoids/menu.11.next"
+rm -rf "${AIROOTFS}/usr/share/plasma/plasmoids/menu.11.next/.git"
+
 cp -a "${REPO_ROOT}/desktop/plasmoids/org.angelos.widgets" "${AIROOTFS}/usr/share/plasma/plasmoids/"
+cp -a "${REPO_ROOT}/desktop/plasmoids/org.angelos.search" "${AIROOTFS}/usr/share/plasma/plasmoids/"
+cp -a "${REPO_ROOT}/desktop/plasmoids/org.angelos.showdesktop" "${AIROOTFS}/usr/share/plasma/plasmoids/"
 
 # Bundle AngelOS desktop assets, OOBE, and scripts into /opt/angelos
 mkdir -p "${AIROOTFS}/opt/angelos"

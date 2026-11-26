@@ -6,8 +6,8 @@ All notable changes to **AngelOS 11** are documented in this file using [Semanti
 
 ## [0.1.0] - 2026-11-26
 ### Added
-- Added left-side Windows 11-style `org.angelos.widgets` Plasma 6 QML plasmoid (quick glance, app launcher tiles, and Light/Dark Mode switcher).
-- Integrated `KDE-Windows-Modern` Plasma 6 C++/QML shell components (`startmenu`, `search` pill, `taskview`, `icontasks`, Win11 `systemtray` + Quick Settings flyout, 2-line `digitalclock` + Notification Bell, `showdesktop` 6px sliver, Kvantum Mica, Aurorae, icons, and Alt+Tab switcher).
+- Switched theme exclusively to `yeyushengfan258/Win11OS-kde` (Aurorae, Kvantum, Color Schemes, Desktop Theme, Look-and-Feel, and SDDM 6.0), updated for latest KDE Plasma 6 (right-side `IAX` titlebar buttons, Plasma 6 `metadata.json`, and `Splash.qml` Qt6 fix) alongside paired `Win11-icon-theme` and `Win10OS-cursors`.
+- Added left-side Windows 11-style `org.angelos.widgets` plasmoid, `org.angelos.search` rounded Search pill, `Eisteed/menu-11-next` Plasma 6 Start Menu, `org.angelos.showdesktop` thin sliver, and Windows 11 right-side tray/clock/notification bell order.
 - Added Microsoft Edge (`microsoft-edge-stable-bin` via AUR with `chromium` fallback) and `ttf-selawik` font builds to `build-iso.sh`, pinning Edge to the centered taskbar.
 - Moved layout initializer to `/usr/local/libexec/angelos-apply-layout` with `NoDisplay=true` and immediate autostart cleanup so it stays hidden from user folders and app menus.
 

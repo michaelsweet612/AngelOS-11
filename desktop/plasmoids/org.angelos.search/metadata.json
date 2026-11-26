@@ -1,0 +1,21 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "michaelsweet612@users.noreply.github.com",
+                "Name": "AngelOS 11"
+            }
+        ],
+        "Category": "Application Launchers",
+        "Description": "Windows 11 rounded taskbar Search pill for KDE Plasma 6",
+        "EnabledByDefault": true,
+        "Icon": "search",
+        "Id": "org.angelos.search",
+        "License": "GPL-3.0-or-later",
+        "Name": "AngelOS Taskbar Search",
+        "Version": "0.1.0",
+        "Website": "https://github.com/michaelsweet612/AngelOS-11"
+    },
+    "KPackageStructure": "Plasma/Applet",
+    "X-Plasma-API-Minimum-Version": "6.0"
+}
