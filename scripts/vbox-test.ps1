@@ -27,10 +27,21 @@ function Resolve-VBoxManage {
     $cmd = Get-Command VBoxManage.exe -ErrorAction SilentlyContinue
     if ($cmd) { return $cmd.Source }
 
-    $defaultPath = Join-Path $Env:ProgramFiles "Oracle\VirtualBox\VBoxManage.exe"
-    if (Test-Path $defaultPath) { return $defaultPath }
+    $candidates = @()
+    if ($Env:VBOX_MSI_INSTALL_PATH) {
+        $candidates += (Join-Path $Env:VBOX_MSI_INSTALL_PATH "VBoxManage.exe")
+    }
+    $reg = Get-ItemProperty "HKLM:\SOFTWARE\Oracle\VirtualBox" -ErrorAction SilentlyContinue
+    if ($reg -and $reg.InstallDir) {
+        $candidates += (Join-Path $reg.InstallDir "VBoxManage.exe")
+    }
+    $candidates += (Join-Path $Env:ProgramFiles "Oracle\VirtualBox\VBoxManage.exe")
 
-    throw "VBoxManage.exe was not found in PATH or '$defaultPath'. Install Oracle VirtualBox first."
+    foreach ($p in $candidates) {
+        if ($p -and (Test-Path $p)) { return $p }
+    }
+
+    throw "VBoxManage.exe was not found. Install Oracle VirtualBox (e.g. 'winget install Oracle.VirtualBox') first."
 }
 
 $ResolvedIso = (Resolve-Path $IsoPath).Path
