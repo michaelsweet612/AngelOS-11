@@ -46,8 +46,8 @@ jobs:
             bash -c '
               pacman-key --init
               pacman-key --populate archlinux
-              pacman -Syu --noconfirm archiso
-              ./scripts/build-iso.sh
+              pacman -Syu --noconfirm archiso grub
+              bash ./scripts/build-iso.sh
             '
 
       - name: Generate SHA256 checksum

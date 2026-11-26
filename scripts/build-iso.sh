@@ -67,8 +67,9 @@ install -Dm644 "${REPO_ROOT}/compat/wine/angelos-exe.desktop" \
 install -Dm644 "${REPO_ROOT}/compat/wine/angelos-msi.desktop" \
     "${STAGED_PROFILE}/airootfs/usr/share/applications/angelos-msi.desktop"
 
-# Ensure live systemd services & graphical target are enabled
+# Ensure live systemd services & graphical target are enabled (remove tty1 getty autologin conflict)
 SYSTEMD_DIR="${STAGED_PROFILE}/airootfs/etc/systemd/system"
+rm -rf "${SYSTEMD_DIR}/getty@tty1.service.d"
 mkdir -p "${SYSTEMD_DIR}/multi-user.target.wants"
 ln -sf /usr/lib/systemd/system/NetworkManager.service "${SYSTEMD_DIR}/multi-user.target.wants/NetworkManager.service"
 ln -sf /usr/lib/systemd/system/vboxservice.service "${SYSTEMD_DIR}/multi-user.target.wants/vboxservice.service"
