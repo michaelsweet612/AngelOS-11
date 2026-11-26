@@ -51,7 +51,7 @@ pacman -Syu --noconfirm --needed \
     qt6-base qt6-declarative kpackage kconfig ki18n kwindowsystem kio \
     kiconthemes kitemmodels kservice kxmlgui kglobalaccel kjobwidgets kcmutils \
     knotifications plasma-activities plasma-activities-stats libplasma \
-    plasma-workspace libksysguard dbusmenu-qt6
+    plasma-workspace libksysguard
 
 echo "==> Staging archiso profile from ${RELENG_DIR}..."
 cp -a "${RELENG_DIR}" "${STAGED_PROFILE}"
