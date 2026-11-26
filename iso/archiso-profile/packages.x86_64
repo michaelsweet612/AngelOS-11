@@ -25,6 +25,7 @@ grub-btrfs
 
 # Latest KDE Plasma 6 + Wayland Desktop Core
 xorg-xwayland
+qt6-wayland
 sddm
 plasma-desktop
 plasma-workspace
@@ -36,6 +37,9 @@ bluedevil
 plasma-nm
 plasma-pa
 plasma-systemmonitor
+pipewire
+pipewire-pulse
+wireplumber
 breeze
 breeze-gtk
 kvantum
@@ -46,7 +50,7 @@ python-pyqt6
 
 # Fonts
 noto-fonts
-ttf-inter
+inter-font
 
 # Default Core Applications (Win11 Equivalents)
 dolphin

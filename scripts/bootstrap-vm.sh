@@ -20,10 +20,11 @@ fi
 echo "==> Installing AngelOS 11 latest Plasma 6, Wine Staging, and VirtualBox Guest stack..."
 pacman -Syu --noconfirm --needed \
     base-devel git curl wget btrfs-progs snapper grub-btrfs \
-    networkmanager sddm xorg-xwayland plasma-desktop plasma-workspace kwin \
+    networkmanager sddm xorg-xwayland qt6-wayland plasma-desktop plasma-workspace kwin \
     kscreen kglobalacceld powerdevil bluedevil plasma-nm plasma-pa \
-    plasma-systemmonitor breeze breeze-gtk kvantum xdg-desktop-portal-kde \
-    xdg-user-dirs libnotify python-pyqt6 noto-fonts ttf-inter \
+    plasma-systemmonitor pipewire pipewire-pulse wireplumber \
+    breeze breeze-gtk kvantum xdg-desktop-portal-kde \
+    xdg-user-dirs libnotify python-pyqt6 noto-fonts inter-font \
     dolphin kate spectacle gwenview haruna ark kcalc konsole discover flatpak \
     wine-staging winetricks wine-mono wine-gecko \
     lib32-mesa lib32-vulkan-icd-loader lib32-pipewire lib32-gnutls \
