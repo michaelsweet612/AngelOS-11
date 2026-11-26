@@ -1,0 +1,52 @@
+name: Lint & Validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate VERSION SemVer format
+        run: |
+          VERSION_VAL="$(tr -d '[:space:]' < VERSION)"
+          echo "Detected VERSION=$VERSION_VAL"
+          if ! [[ "$VERSION_VAL" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "ERROR: VERSION must follow Semantic Versioning (e.g. 0.0.1)"
+            exit 1
+          fi
+
+      - name: Run ShellCheck on shell scripts
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq shellcheck
+          mapfile -t sh_files < <(find . -type f -name "*.sh")
+          if [ "${#sh_files[@]}" -gt 0 ]; then
+            shellcheck "${sh_files[@]}"
+          fi
+
+      - name: Validate YAML & JSON files
+        run: |
+          python3 - <<'EOF'
+          import json, pathlib, sys
+          try:
+              import yaml
+          except ImportError:
+              yaml = None
+
+          for path in pathlib.Path('.').rglob('*'):
+              if '.git' in path.parts:
+                  continue
+              if path.suffix == '.json':
+                  json.loads(path.read_text(encoding='utf-8'))
+                  print(f"OK JSON: {path}")
+              elif path.suffix in ('.yml', '.yaml') and yaml is not None:
+                  yaml.safe_load(path.read_text(encoding='utf-8'))
+                  print(f"OK YAML: {path}")
+          EOF

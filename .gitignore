@@ -1,0 +1,28 @@
+# ISO & VM build artifacts
+*.iso
+*.img
+*.qcow2
+*.vdi
+*.vmdk
+*.ova
+*.sha256
+iso/work/
+iso/out/
+out/
+work/
+
+# Arch package build artifacts
+packages/**/pkg/
+packages/**/src/
+*.pkg.tar.zst
+*.pkg.tar.xz
+*.log
+
+# OS & editor junk
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.tmp
+.vscode/
+.idea/

@@ -1,0 +1,57 @@
+# AngelOS 11 Baseline Package List (v0.0.1)
+# Kernel & Firmware
+base
+linux
+linux-headers
+linux-firmware
+mkinitcpio-archiso
+syslinux
+edk2-shell
+
+# Networking & Core Utilities
+networkmanager
+openssh
+sudo
+git
+curl
+wget
+bash-completion
+btrfs-progs
+snapper
+grub
+efibootmgr
+os-prober
+
+# KDE Plasma 6 + Wayland Desktop Core
+xorg-xwayland
+sddm
+plasma-desktop
+plasma-workspace
+kwin
+kscreen
+kglobalacceld
+powerdevil
+bluedevil
+plasma-nm
+plasma-pa
+plasma-systemmonitor
+breeze
+breeze-gtk
+kvantum
+xdg-desktop-portal-kde
+xdg-user-dirs
+
+# Default Core Applications (Win11 Equivalents)
+dolphin
+kate
+spectacle
+gwenview
+haruna
+ark
+kcalc
+konsole
+discover
+flatpak
+
+# VirtualBox Guest Support (Live ISO + VM Testing)
+virtualbox-guest-utils
